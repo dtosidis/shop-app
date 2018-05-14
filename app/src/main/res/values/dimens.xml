@@ -1,0 +1,12 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="activity_margin">16dp</dimen>
+
+    <dimen name="left_padding">4dp</dimen>
+
+    <dimen name="zero_width">0dp</dimen>
+
+    <dimen name="list_product_margin">8dp</dimen>
+
+</resources>
