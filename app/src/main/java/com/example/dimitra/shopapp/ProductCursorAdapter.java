@@ -13,8 +13,8 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dimitra.shopapp.Data.ProductContract.ProductEntry;
 
+import com.example.dimitra.shopapp.Data.ProductContract.ProductEntry;
 
 /**
  * {@link ProductCursorAdapter} is an adapter for a list or grid view
@@ -23,6 +23,7 @@ import com.example.dimitra.shopapp.Data.ProductContract.ProductEntry;
  */
 public class ProductCursorAdapter extends CursorAdapter {
     private Context mContext;
+
     /**
      * Constructs a new {@link ProductCursorAdapter}.
      *
@@ -59,7 +60,7 @@ public class ProductCursorAdapter extends CursorAdapter {
      *                correct row.
      */
     @Override
-    public void bindView(View view, final Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, final Cursor cursor) {
         mContext = context;
 
         TextView nameTextView = view.findViewById(R.id.name);
@@ -81,30 +82,5 @@ public class ProductCursorAdapter extends CursorAdapter {
         supplierTextView.setText(supplierColumnIndex);
         supplierPhoneTextView.setText(Integer.toString(supplierPhoneColumnIndex));
 
-        Button sellButton = view.findViewById(R.id.btn_sell);
-        sellButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view != null) {
-                    Object obj = view.getTag();
-                    String st = obj.toString();
-                    ContentValues values = new ContentValues();
-                    values.put(ProductEntry.COLUMN_PRODUCT_NAME, nameColumnIndex);
-                    values.put(ProductEntry.COLUMN_PRODUCT_PRICE, priceColumnIndex);
-                    values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityColumnIndex >= 1? quantityColumnIndex-1: 0);
-                    values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER, supplierColumnIndex);
-                    values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, supplierPhoneColumnIndex);
-
-                    Uri currentPetUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, Integer.parseInt(st));
-
-                    int rowsAffected = mContext.getContentResolver().update(currentPetUri, values, null, null);
-                    if (rowsAffected == 0 || quantityColumnIndex == 0) {
-                        Toast.makeText(mContext, mContext.getString(R.string.sell_product_failed), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-        Object obj = cursor.getInt(cursor.getColumnIndex(ProductEntry._ID));
-        sellButton.setTag(obj);
     }
 }

@@ -2,11 +2,14 @@ package com.example.dimitra.shopapp;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,10 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.dimitra.shopapp.Data.ProductContract.ProductEntry;
+
+import java.util.List;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -56,6 +62,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private boolean mProductHasChanged = false;
 
+    Button contactButton;
+
+    Button sellButton;
+
+    Button addButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,12 +87,59 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText = findViewById(R.id.edit_product_quantity);
         mSupplierEditText = findViewById(R.id.edit_supplier_name);
         mSupplierPhoneEditText = findViewById(R.id.edit_supplier_phone_number);
+        contactButton = findViewById(R.id.btn_contact);
+        sellButton = findViewById(R.id.btn_sell);
+        addButton = findViewById(R.id.btn_add);
 
         mNameEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
         mSupplierEditText.setOnTouchListener(mTouchListener);
         mSupplierPhoneEditText.setOnTouchListener(mTouchListener);
+
+        contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                String supplierPhoneString = mSupplierPhoneEditText.getText().toString().trim();
+                intent.setData(Uri.parse("tel:" + supplierPhoneString));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    // Verify it resolves
+                    PackageManager packageManager = getPackageManager();
+                    List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+                    boolean isIntentSafe = activities.size() > 0;
+
+                    // Start an activity if it's safe
+                    if (isIntentSafe)
+                        startActivity(intent);
+                }
+            }
+        });
+
+        sellButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String quantityString = mQuantityEditText.getText().toString().trim();
+                int quantityInt = Integer.parseInt(quantityString);
+                if (!TextUtils.isEmpty(quantityString))
+                    quantityInt -= 1;
+                else
+                    Toast.makeText(getApplicationContext(), getString(R.string.sell_product_failed), Toast.LENGTH_SHORT).show();
+                mQuantityEditText.setText(Integer.toString(quantityInt));
+            }
+        });
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String quantityString = mQuantityEditText.getText().toString().trim();
+                int quantityInt = Integer.parseInt(quantityString);
+                if (!TextUtils.isEmpty(quantityString))
+                    quantityInt += 1;
+                else
+                    Toast.makeText(getApplicationContext(), getString(R.string.add_product_failed), Toast.LENGTH_SHORT).show();
+                mQuantityEditText.setText(Integer.toString(quantityInt));
+            }
+        });
     }
 
     /**
@@ -93,25 +152,24 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String supplierString = mSupplierEditText.getText().toString().trim();
         String supplierPhoneString = mSupplierPhoneEditText.getText().toString().trim();
 
-        // Check if this is supposed to be a new product
-        // and check if all the fields in the editor are blank
-        if (mCurrentProductUri == null && TextUtils.isEmpty(nameString)) {
+        // check if all the fields in the editor are blank
+        if (TextUtils.isEmpty(nameString)) {
             Toast.makeText(this, getString(R.string.empty_name),Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mCurrentProductUri == null && TextUtils.isEmpty(priceString)) {
+        if (TextUtils.isEmpty(priceString)) {
             Toast.makeText(this, getString(R.string.empty_price),Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mCurrentProductUri == null && TextUtils.isEmpty(quantityString)) {
+        if (TextUtils.isEmpty(quantityString)) {
             Toast.makeText(this, getString(R.string.empty_quantity),Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mCurrentProductUri == null && TextUtils.isEmpty(supplierString)) {
+        if (TextUtils.isEmpty(supplierString)) {
             Toast.makeText(this, getString(R.string.empty_supplier),Toast.LENGTH_SHORT).show();
             return;
         }
-        if (mCurrentProductUri == null && TextUtils.isEmpty(supplierPhoneString)) {
+        if (TextUtils.isEmpty(supplierPhoneString)) {
             Toast.makeText(this, getString(R.string.empty_supplierPhone),Toast.LENGTH_SHORT).show();
             return;
         }
@@ -159,6 +217,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         Toast.LENGTH_SHORT).show();
             }
         }
+        finish();
     }
 
     @Override
@@ -174,7 +233,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             case R.id.action_save:
                 // Save product to database
                 saveProduct();
-                finish();
                 return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();

@@ -7,7 +7,7 @@
     <string name="action_insert_dummy_data">Insert Dummy Data</string>
 
     <!-- Label for overflow menu option that deletes all pet data in the app [CHAR LIMIT=20] -->
-    <string name="action_delete_all_entries">Delete All Pets</string>
+    <string name="action_delete_all_entries">Delete All Products</string>
 
     <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
     <string name="action_save">Save</string>
@@ -86,6 +86,8 @@
     <string name="empty_supplier">You did not inserted a supplier name</string>
     <string name="empty_supplierPhone">You did not inserted the supplier\'s phone</string>
     <string name="btn_sell_product">sell</string>
+    <string name="btn_add_product">add</string>
     <string name="sell_product_failed">Product not sold</string>
     <string name="add_product_failed">Product not added</string>
+    <string name="btn_contact_product">contact</string>
 </resources>
